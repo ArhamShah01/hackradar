@@ -6,6 +6,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from email.header import decode_header as dh
 import dateparser
+from datetime import datetime
 
 app = Flask(__name__)
 CORS(app)
@@ -66,9 +67,14 @@ def extract_deadline(text):
     return None
 
 def get_status(tags, deadline):
-    if any(t in tags for t in ['deadline', 'submit project']):
-        return 'urgent'
-    if deadline: return 'upcoming'
+    if deadline:
+        try:
+            d = dateparser.parse(deadline)
+            if d and (d - datetime.now()).days <= 3:
+                return 'urgent'
+            return 'upcoming'
+        except:
+            pass
     return 'new'
 
 @app.route('/api/emails')
