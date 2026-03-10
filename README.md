@@ -10,7 +10,7 @@ Built for VIT Vellore students (works with `@vitstudent.ac.in` Google Workspace 
 
 ## 📸 Features
 
-- 🔍 **Auto-scrapes** your Gmail for hackathon, competition, contest, devpost, SIH, MLH, IEEE, ACM emails
+- 🔍 **Auto-scrapes** your Gmail for hackathon, competition, contest, emails
 - 🔥 **Smart tagging** — flags Urgent deadlines, Upcoming events, and New announcements
 - ⏰ **Deadline extraction** — pulls dates from email bodies using regex
 - 🎛️ **Filter by status and tag** — sidebar navigation
