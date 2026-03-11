@@ -5,6 +5,8 @@ from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from email.header import decode_header as dh
+import dateparser
+from datetime import datetime
 
 app = Flask(__name__)
 CORS(app)
@@ -54,19 +56,25 @@ def get_body(payload):
 
 def extract_deadline(text):
     patterns = [
-        r'(?:deadline|last date|due|closes?|ends?|submit by)[:\s]+([A-Z][a-z]+ \d{1,2}(?:,?\s*\d{4})?)',
-        r'(?:deadline|last date|due)[:\s]+(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})',
-        r'(?:before|by)\s+([A-Z][a-z]+ \d{1,2}(?:,?\s*\d{4})?)',
+        r'(?:deadline|last date|due|closes?|ends?|submit by|before|by)[:\s]+(.{5,40}?)(?:\n|\.)',
     ]
     for p in patterns:
         m = re.search(p, text, re.IGNORECASE)
-        if m: return m.group(1)
+        if m:
+            parsed = dateparser.parse(m.group(1))
+            if parsed:
+                return parsed.strftime('%d %b %Y')
     return None
 
 def get_status(tags, deadline):
-    if any(t in tags for t in ['deadline', 'submit project']):
-        return 'urgent'
-    if deadline: return 'upcoming'
+    if deadline:
+        try:
+            d = dateparser.parse(deadline)
+            if d and (d - datetime.now()).days <= 3:
+                return 'urgent'
+            return 'upcoming'
+        except:
+            pass
     return 'new'
 
 @app.route('/api/emails')
